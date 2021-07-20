@@ -1,0 +1,7 @@
+/Code/keys.py
+/Output/*
+!/Output/Type0
+!/Output/Type1
+/Code/__pycache__/*
+/Code/my_package/__pycache__/*
+
