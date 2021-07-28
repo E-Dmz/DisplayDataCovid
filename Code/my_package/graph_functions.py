@@ -7,13 +7,6 @@ from my_package.dicts import reg_2lignes, reg2dep, dep_name, deps_outlay_fig_syn
 
 from my_package.graph_options import graph_options
 
-# try: os.mkdir('../Output/{}-{}-{}'.format(VERSION, DATE_CHOICE[0], TODAY[0]))
-# except: pass
-# try: os.mkdir('../Output/{}-{}-{}/PNG'.format(version, DATE_CHOICE[0], TODAY[0]))
-# except: pass
-# try: os.mkdir('../Output/{}-{}-{}/PDF'.format(version, DATE_CHOICE[0], TODAY[0]))
-# except: pass
-
 def format_graph(ax, x_axis = 'complete', y_labels = "to_the_left", rescale = 1, **kwargs):
     """
     formats the graph
@@ -137,7 +130,14 @@ def format_graph(ax, x_axis = 'complete', y_labels = "to_the_left", rescale = 1,
         ax.set_xticklabels(labels)
         plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor") 
 
-def plot_three_curves(ax, d, entity, column_to_plot, whole = 'without', hline = 'with', **kwargs):
+def last_value(df, entity, age_class, label): ##### à bouger de là
+    jour = df[df[label].notna()].jour.max()
+    last_value = (df[(df.jour == jour) 
+                    & (df.entity == entity)
+                    & (df.three_class == age_class)])[label].values
+    return last_value[0]
+
+def plot_three_curves(ax, d, entity, column_to_plot, whole = 'without', hline = ['60+'], **kwargs):
     """
     """
     main_color = kwargs['main_color']
@@ -145,48 +145,15 @@ def plot_three_curves(ax, d, entity, column_to_plot, whole = 'without', hline = 
     ###
     # Tracé d'une ligne horizontale
 
-    if hline == 'with':
-        jour = d[d[column_to_plot].notna()].jour.max()
-        y = (d[(d.jour == jour) 
-                    & (d.entity.isin([entity]))
-                    & (d.three_class == '60+')]
-                    [column_to_plot]
-                   .mean())
-        ax.axhline(y, c = main_color, linewidth = 0.8, linestyle = '-')
+    color = {
+        '60+': main_color,
+        '0-29': 'firebrick',
+        '30-59': 'black',
+    }
 
-    if hline == 'with_younger':
-        jour = d[d[column_to_plot].notna()].jour.max()
-        y = (d[(d.jour == jour) 
-                    & (d.entity.isin([entity]))
-                    & (d.three_class == '0-29')]
-                    [column_to_plot]
-                   .mean())
-        ax.axhline(y, c = "firebrick", linewidth = 0.8, linestyle = '-')
-
-    if hline == 'with_all':
-        jour = d[d[column_to_plot].notna()].jour.max()
-        y = (d[(d.jour == jour) 
-                    & (d.entity.isin([entity]))
-                    & (d.three_class == '30-59')]
-                    [column_to_plot]
-                   .mean())
-        ax.axhline(y, c = "black", linewidth = 0.8, linestyle = '-')
-        
-        jour = d[d[column_to_plot].notna()].jour.max()
-        y = (d[(d.jour == jour) 
-                    & (d.entity.isin([entity]))
-                    & (d.three_class == '60+')]
-                    [column_to_plot]
-                   .mean())
-        ax.axhline(y, c = main_color, linewidth = 0.8, linestyle = '-')
-
-        jour = d[d[column_to_plot].notna()].jour.max()
-        y = (d[(d.jour == jour) 
-                    & (d.entity.isin([entity]))
-                    & (d.three_class == '0-29')]
-                    [column_to_plot]
-                   .mean())
-        ax.axhline(y, c = "firebrick", linewidth = 0.8, linestyle = '-')
+    for age_class in hline:
+        y = last_value(d, entity, age_class, column_to_plot)
+        ax.axhline(y, c = color[age_class], linewidth = 0.8, linestyle = '-')
 
     if whole in ['without', 'with']:
         dplot = d.loc[d.entity == entity].loc[d.three_class == '0-29']
@@ -201,16 +168,6 @@ def plot_three_curves(ax, d, entity, column_to_plot, whole = 'without', hline = 
     if whole in ['with', 'only']:
         dplot = d.loc[d.entity == entity].loc[d.three_class == 'whole']
         ax.plot(dplot.jour, dplot[column_to_plot], c = main_color, linewidth = 1.5, linestyle = '-', label = 'tous âges')
-
-        if hline == 'with':
-            jour = d[d[column_to_plot].notna()].jour.max()
-            y = (d[(d.jour == jour) 
-                        & (d.entity.isin([entity]))
-                        & (d.three_class == 'whole')]
-                        [column_to_plot]
-                    .mean())
-            ax.axhline(y, c = main_color, linewidth = 0.8, linestyle = '-')
-
 
 def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = graph_options):
     
@@ -235,13 +192,10 @@ def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = 
               )
     plt.setp(ax.get_legend().get_title(), multialignment='center')
 
-    dir_PNG = '{output_dir}Type0/'.format(
-            output_dir = output_dir)
-    fig_id = '{region}-{extension}'.format(region = entity, extension = graph_options[column_to_plot]["fname_extension"])
+    dir_PNG = f'{output_dir}Type0/'
+    fig_id = f'{entity}-{column_to_plot}'
     save_output(fig, dir_PNG, fig_id)
     save_output(fig, '../Output/Type0/', fig_id)
-
-
 
 def figure_line(row, nrow, axs, d, column_to_plot, regions, graph_options):
     """

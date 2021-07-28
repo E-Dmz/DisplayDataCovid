@@ -1,334 +1,101 @@
+from math import log10, floor, ceil
+
+ordre_de_grandeur = lambda x: 10**floor(log10(x)) 
+
+def delta(deltamin):
+    """
+    given a minimal delta, calculates the delta of majlocs and minlocs
+    deltamin: float
+    returns 2 floats
+    """
+    o = ordre_de_grandeur(deltamin)
+    r = deltamin/ordre_de_grandeur(deltamin)
+    if r < 2:
+        return 2 * o, o
+    elif r <5:
+        return 5 * o, o
+    else:
+        return 10 * o, 5* o
+
+def loc_auto(lim_sup, nmajor = 5, nminor = 14):
+    """
+    given a ymax (lim_sup), calculates the graduations 
+    lim_sup: integer or float
+    nmajor: integer, max number of major graduations
+    nminor: integer, max number of minor graduations
+    returns 
+    majloc, minloc: lists of floats
+    """
+    deltamin = lim_sup/nmajor
+    dmaj, dmin = delta(deltamin)
+    
+    majloc = [dmaj * i for i in range(ceil(lim_sup/dmaj))]
+    minloc = [dmin * i for i in range(ceil(lim_sup/dmin))]
+    if len(minloc) > nminor:
+        minloc = majloc
+
+    return majloc, minloc 
+
+def graph_options_auto(indicateurs_dic):
+    """
+    returns a modified graph_options dictionnary
+    indicateurs_dic: dictionary with keys = labels, values = ymax
+    """
+    graph_options_alt = graph_options.copy()
+
+    for label, ymax in indicateurs_dic.items():
+        modified_item  = graph_options_alt[label]
+        modified_item['ymax'] = ymax
+        locs = loc_auto(ymax)
+        modified_item['majloc'] = locs[0]
+        modified_item['minloc'] = locs[1]
+
+    return graph_options_alt
+
 graph_options = {
     'incidence hebdo': {
-        'ymax': 1100,
-        'minloc': [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, ],#1100, 1200, 1300, 1400, 1500, 1600, 1700],
-        'majloc': [0, 500, 1000, 1500],
+        'ymax': 1150,
         'main_color': 'darkturquoise',
         'title': 'Cas positifs par semaine,\npour 100 000 habitants',
-        'fname_extension': 'incidence',
         },
     'taux de tests hebdo': {
-        'ymax': 11000,
-        'majloc': [0, 5000, 10000],
-        'minloc': [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000],
+        'ymax': 16000,
         'main_color': 'gray',
         'title': 'Tests pratiqués par semaine,\npour 100 000 habitants',
-        'fname_extension': 'tests',
         },
     'taux de positifs hebdo': {
         'ymax': 30,
-        'majloc': [0, 5, 10, 15, 20, 25],
-        'minloc': [0, 5, 10, 15, 20, 25],
         'main_color': 'olivedrab',
         'title': 'Tests positifs,\npour 100 tests\n(moyenne hebdomadaire)',
-        'fname_extension': 'positivite',
         },
     'taux hosp': {
-        'ymax': 379,#100,#
-        'majloc': [0, 100, 200, 300],
-        'minloc': [0, 50, 100, 150, 200, 250, 300, 350],
+        'ymax': 372,
         'main_color': 'mediumseagreen',
         'title': 'Patients hospitalisés,\npour 100 000 habitants',
-        'fname_extension': 'hosp',
         },
     'taux rea': {
-        'ymax': 60,
-        'majloc': [0, 10, 20, 30, 40, 50],
-        'minloc': [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55,],
+        'ymax': 58,
         'main_color': 'darksalmon',
         'title': 'Patients en réanimation,\npour 100 000 habitants',
-        'fname_extension': 'rea',
         },
     'taux décès': {
-        'ymax': 60,
-        'majloc': [0, 10, 20, 30, 40, 50,],
-        'minloc': [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+        'ymax': 54,
         'main_color': 'orchid',
         'title': "Décès à l'hôpital par semaine,\npour 100 000 habitants",
-        'fname_extension': 'deces',
         },
     'taux dose 1': {
        'ymax': 98,
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-        'majloc': [0, 20, 40, 60, 80], 
         'main_color': 'silver',
         'title': 'Première injection,\npour 100 habitants',
-        'fname_extension': 'dose1',
         },
     'taux complet': {
-        'ymax': 98,
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-        'majloc': [0, 20, 40, 60, 80],     
+        'ymax': 98,  
         'main_color': 'gold',
         'title': 'Vaccination complète,\npour 100 habitants',
-        'fname_extension': 'vaccin complet',
         },
     }
-
-graph_options_alt_1 = { #Zoom sur la fin 
-    'incidence hebdo': {
-        'ymax': 110,
-        'majloc': [0, 50, 100, ],#1100, 1200, 1300, 1400, 1500, 1600, 1700],
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, ],
-        'main_color': 'darkturquoise',
-        'title': 'Cas positifs par semaine,\npour 100 000 habitants',
-        'fname_extension': 'incidence',
-        },
-    'taux de tests hebdo': {
-        'ymax': 6000,
-        'majloc': [0, 1000, 2000, 3000, 4000, 5000,],
-        'minloc': [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500],
-        'main_color': 'gray',
-        'title': 'Tests pratiqués par semaine,\npour 100 000 habitants',
-        'fname_extension': 'tests',
-        },
-    'taux de positifs hebdo': {
-        'ymax': 30,
-        'majloc': [0, 5, 10, 15, 20, 25,],
-        'minloc': [0, 5, 10, 15, 20, 25],
-        'main_color': 'olivedrab',
-        'title': 'Tests positifs,\npour 100 tests\n(moyenne hebdomadaire)',
-        'fname_extension': 'positivite',
-        },
-    'taux hosp': {
-        'ymax': 100,#100,#
-        'majloc': [0, 20, 40, 60, 80,],
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-        'main_color': 'mediumseagreen',
-        'title': 'Patients hospitalisés,\npour 100 000 habitants',
-        'fname_extension': 'hosp',
-        },
-    'taux rea': {
-        'ymax': 15,
-        'majloc': [0, 5, 10],
-        'minloc': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-        'main_color': 'darksalmon',
-        'title': 'Patients en réanimation,\npour 100 000 habitants',
-        'fname_extension': 'rea',
-        },
-    'taux décès': {
-        'ymax': 3,
-        'majloc': [0, 0.5, 1, 1.5, 2, 2.5],
-        'minloc': [0, 0.5, 1, 1.5, 2, 2.5],
-        'main_color': 'orchid',
-        'title': "Décès à l'hôpital par semaine,\npour 100 000 habitants",
-        'fname_extension': 'deces',
-        },
-    'taux dose 1': {
-       'ymax': 100,
-        'majloc': [0, 20, 40, 60, 80], 
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-        'main_color': 'silver',
-        'title': 'Première injection,\npour 100 habitants',
-        'fname_extension': 'dose1',
-        },
-    'taux complet': {
-        'ymax': 100,
-        'majloc': [0, 20, 40, 60, 80],  
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],   
-        'main_color': 'gold',
-        'title': 'Vaccination complète,\npour 100 habitants',
-        'fname_extension': 'vaccin complet',
-        },
-    }
-
-graph_options_alt_2 = {
-    'incidence hebdo': {
-        'ymax': 500,
-        'minloc': [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, ],#1100, 1200, 1300, 1400, 1500, 1600, 1700],
-        'majloc': [0, 100, 200, 300, 400,],
-        'main_color': 'darkturquoise',
-        'title': 'Cas positifs par semaine,\npour 100 000 habitants',
-        'fname_extension': 'incidence',
-        },
-    'taux de tests hebdo': {
-        'ymax': 11000,
-        'majloc': [0, 5000, 10000],
-        'minloc': [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000],
-        'main_color': 'gray',
-        'title': 'Tests pratiqués par semaine,\npour 100 000 habitants',
-        'fname_extension': 'tests',
-        },
-    'taux de positifs hebdo': {
-        'ymax': 30,
-        'majloc': [0, 5, 10, 15, 20, 25],
-        'minloc': [0, 5, 10, 15, 20, 25],
-        'main_color': 'olivedrab',
-        'title': 'Tests positifs,\npour 100 tests\n(moyenne hebdomadaire)',
-        'fname_extension': 'positivite',
-        },
-    'taux hosp': {
-        'ymax': 250,#100,#
-        'majloc': [0, 100, 200, 300],
-        'minloc': [0, 50, 100, 150, 200, 250, 300, 350],
-        'main_color': 'mediumseagreen',
-        'title': 'Patients hospitalisés,\npour 100 000 habitants',
-        'fname_extension': 'hosp',
-        },
-    'taux rea': {
-        'ymax': 100,
-        'majloc': [0, 20, 40, 60, 80, 100, ],
-        'minloc': [0, 20, 40, 60, 80, 100, 10, 30, 50, 70, 90,],
-        'main_color': 'darksalmon',
-        'title': 'Patients en réanimation,\npour 100 000 habitants',
-        'fname_extension': 'rea',
-        },
-    'taux décès': {
-        'ymax': 40,
-        'majloc': [0, 10, 20, 30, 40, 50,],
-        'minloc': [0, 10, 20, 30, 40, 50, 5, 15, 25, 35, 45, ],
-        'main_color': 'orchid',
-        'title': "Décès à l'hôpital par semaine,\npour 100 000 habitants",
-        'fname_extension': 'deces',
-        },
-    'taux dose 1': {
-       'ymax': 98,
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-        'majloc': [0, 20, 40, 60, 80], 
-        'main_color': 'silver',
-        'title': 'Première injection,\npour 100 habitants',
-        'fname_extension': 'dose1',
-        },
-    'taux complet': {
-        'ymax': 98,
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-        'majloc': [0, 20, 40, 60, 80],     
-        'main_color': 'gold',
-        'title': 'Vaccination complète,\npour 100 habitants',
-        'fname_extension': 'vaccin complet',
-        },
-    }
-
-graph_options_alt_3 = {
-    'incidence hebdo': {
-        'ymax': 1500,
-        'minloc': [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, ],#1100, 1200, 1300, 1400, 1500, 1600, 1700],
-        'majloc': [0, 200, 400, 600, 800],
-        'main_color': 'darkturquoise',
-        'title': 'Cas positifs par semaine,\npour 100 000 habitants',
-        'fname_extension': 'incidence',
-        },
-    'taux de tests hebdo': {
-        'ymax': 15000,
-        'majloc': [0, 5000, 10000],
-        'minloc': [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000],
-        'main_color': 'gray',
-        'title': 'Tests pratiqués par semaine,\npour 100 000 habitants',
-        'fname_extension': 'tests',
-        },
-    'taux de positifs hebdo': {
-        'ymax': 30,
-        'majloc': [0, 5, 10, 15, 20, 25],
-        'minloc': [0, 5, 10, 15, 20, 25],
-        'main_color': 'olivedrab',
-        'title': 'Tests positifs,\npour 100 tests\n(moyenne hebdomadaire)',
-        'fname_extension': 'positivite',
-        },
-    'taux hosp': {
-        'ymax': 500,#100,#
-        'majloc': [0, 100, 200, 300],
-        'minloc': [0, 50, 100, 150, 200, 250, 300, 350],
-        'main_color': 'mediumseagreen',
-        'title': 'Patients hospitalisés,\npour 100 000 habitants',
-        'fname_extension': 'hosp',
-        },
-    'taux rea': {
-        'ymax': 150,
-        'majloc': [0, 20, 40, 60, 80, 100, ],
-        'minloc': [0, 20, 40, 60, 80, 100, 10, 30, 50, 70, 90,],
-        'main_color': 'darksalmon',
-        'title': 'Patients en réanimation,\npour 100 000 habitants',
-        'fname_extension': 'rea',
-        },
-    'taux décès': {
-        'ymax': 100,
-        'majloc': [0, 10, 20, 30, 40, 50, ],
-        'minloc': [0, 10, 20, 30, 40, 50, 5, 15, 25, 35, 45, ],
-        'main_color': 'orchid',
-        'title': "Décès à l'hôpital par semaine,\npour 100 000 habitants",
-        'fname_extension': 'deces',
-        },
-    'taux dose 1': {
-       'ymax': 98,
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-        'majloc': [0, 20, 40, 60, 80], 
-        'main_color': 'silver',
-        'title': 'Première injection,\npour 100 habitants',
-        'fname_extension': 'dose1',
-        },
-    'taux complet': {
-        'ymax': 98,
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-        'majloc': [0, 20, 40, 60, 80],     
-        'main_color': 'gold',
-        'title': 'Vaccination complète,\npour 100 habitants',
-        'fname_extension': 'vaccin complet',
-        },
-    }
-
-graph_options_alt_4 = {
-    'incidence hebdo': {
-        'ymax': 230,
-        'majloc': [50 * i for i in range(230//50+1)],#1100, 1200, 1300, 1400, 1500, 1600, 1700],
-        'minloc': [10 * i for i in range(230//10+1)],
-        'main_color': 'darkturquoise',
-        'title': 'Cas positifs par semaine,\npour 100 000 habitants',
-        'fname_extension': 'incidence',
-        },
-    'taux de tests hebdo': {
-        'ymax': 5000,
-        'majloc': [0, 1000, 2000, 3000, 4000,],
-        'minloc': [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500],
-        'main_color': 'gray',
-        'title': 'Tests pratiqués par semaine,\npour 100 000 habitants',
-        'fname_extension': 'tests',
-        },
-    'taux de positifs hebdo': {
-        'ymax': 30,
-        'majloc': [0, 5, 10, 15, 20, 25,],
-        'minloc': [0, 5, 10, 15, 20, 25],
-        'main_color': 'olivedrab',
-        'title': 'Tests positifs,\npour 100 tests\n(moyenne hebdomadaire)',
-        'fname_extension': 'positivite',
-        },
-    'taux hosp': {
-        'ymax': 100,#100,#
-        'majloc': [0, 20, 40, 60, 80,],
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-        'main_color': 'mediumseagreen',
-        'title': 'Patients hospitalisés,\npour 100 000 habitants',
-        'fname_extension': 'hosp',
-        },
-    'taux rea': {
-        'ymax': 15,
-        'majloc': [0, 5, 10],
-        'minloc': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-        'main_color': 'darksalmon',
-        'title': 'Patients en réanimation,\npour 100 000 habitants',
-        'fname_extension': 'rea',
-        },
-    'taux décès': {
-        'ymax': 3,
-        'majloc': [0, 0.5, 1, 1.5, 2, 2.5],
-        'minloc': [0, 0.5, 1, 1.5, 2, 2.5],
-        'main_color': 'orchid',
-        'title': "Décès à l'hôpital par semaine,\npour 100 000 habitants",
-        'fname_extension': 'deces',
-        },
-    'taux dose 1': {
-       'ymax': 100,
-        'majloc': [0, 20, 40, 60, 80], 
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-        'main_color': 'silver',
-        'title': 'Première injection,\npour 100 habitants',
-        'fname_extension': 'dose1',
-        },
-    'taux complet': {
-        'ymax': 100,
-        'majloc': [0, 20, 40, 60, 80],  
-        'minloc': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],   
-        'main_color': 'gold',
-        'title': 'Vaccination complète,\npour 100 habitants',
-        'fname_extension': 'vaccin complet',
-        },
-    }
+for label in graph_options:
+    ymax = graph_options[label]['ymax']
+    majloc, minloc = loc_auto(ymax)
+    graph_options[label]['majloc'] = majloc
+    graph_options[label]['minloc'] = minloc
