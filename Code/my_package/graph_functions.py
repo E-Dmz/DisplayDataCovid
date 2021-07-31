@@ -5,7 +5,7 @@ import numpy as np
 from my_package.datepaths import output_dir, save_output, TODAY
 from my_package.dicts import reg_2lignes, reg2dep, dep_name, deps_outlay_fig_synthese, pops_France_str, pops_regs_str
 
-from my_package.graph_options import graph_options
+from my_package.graph_options import graph_options, last_value
 
 def format_graph(ax, x_axis = 'complete', y_labels = "to_the_left", rescale = 1, **kwargs):
     """
@@ -130,14 +130,7 @@ def format_graph(ax, x_axis = 'complete', y_labels = "to_the_left", rescale = 1,
         ax.set_xticklabels(labels)
         plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor") 
 
-def last_value(df, entity, age_class, label): ##### à bouger de là
-    jour = df[df[label].notna()].jour.max()
-    last_value = (df[(df.jour == jour) 
-                    & (df.entity == entity)
-                    & (df.three_class == age_class)])[label].values
-    return last_value[0]
-
-def plot_three_curves(ax, d, entity, column_to_plot, whole = 'without', hline = ['60+'], **kwargs):
+def plot_three_curves(ax, df, entity, column_to_plot, whole = 'without', hline = ['60+'], **kwargs):
     """
     """
     main_color = kwargs['main_color']
@@ -149,27 +142,26 @@ def plot_three_curves(ax, d, entity, column_to_plot, whole = 'without', hline = 
         '60+': main_color,
         '0-29': 'firebrick',
         '30-59': 'black',
-    }
-
+        }
     for age_class in hline:
-        y = last_value(d, entity, age_class, column_to_plot)
+        y = last_value(df, entity, age_class, column_to_plot)
         ax.axhline(y, c = color[age_class], linewidth = 0.8, linestyle = '-')
 
-    if whole in ['without', 'with']:
-        dplot = d.loc[d.entity == entity].loc[d.three_class == '0-29']
-        ax.plot(dplot.jour, dplot[column_to_plot], c = "firebrick", linewidth = 1, label = '0-29 ans')
-        
-        dplot = d.loc[d.entity == entity].loc[d.three_class == '30-59']
-        ax.plot(dplot.jour, dplot[column_to_plot], c = "black", linewidth = 1.5, label = '30-59 ans')
+    if whole in ['without', 'with']: # tracé des trois courbes des trois classes d'âge
+        for age_class, c, linewidth, label in zip(
+            ['60+',             '30-59',        '0-29'],
+            [main_color,        'black',        'firebrick'], 
+            [3,                 1.5,            1],
+            ['60 ans et +',     '30-59 ans',    '0-29 ans']
+            ):
+            dplot = df.loc[df.entity == entity].loc[df.three_class == age_class]
+            ax.plot(dplot.jour, dplot[column_to_plot], c = c, linewidth = linewidth, label = label)
 
-        dplot = d.loc[d.entity == entity].loc[d.three_class == '60+']
-        ax.plot(dplot.jour, dplot[column_to_plot], c = main_color, linewidth = 3, label = '60 ans et +')
-
-    if whole in ['with', 'only']:
-        dplot = d.loc[d.entity == entity].loc[d.three_class == 'whole']
+    if whole in ['with', 'only']: # tracé de la courbe population entière
+        dplot = df.loc[df.entity == entity].loc[df.three_class == 'whole']
         ax.plot(dplot.jour, dplot[column_to_plot], c = main_color, linewidth = 1.5, linestyle = '-', label = 'tous âges')
 
-def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = graph_options):
+def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = graph_options, hline = 'auto'):
     
     if autoscale:
         ymin = d[d.entity == entity][column_to_plot].min()
@@ -177,7 +169,8 @@ def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = 
     fig, ax = plt.subplots(1, 1, figsize = (8, 4))
     kwargs = graph_options[column_to_plot]
 
-    hline = 'with_all' if column_to_plot == 'incidence hebdo' else 'with'
+    if hline == 'auto':
+        hline = ['0-29', '30-59', '60+'] if column_to_plot in ['incidence hebdo', 'taux de tests hebdo', 'taux dose 1', 'taux complet'] else ['60+']
 
     plot_three_curves(ax, d, entity, column_to_plot, hline = hline, **kwargs)
     if autoscale: format_graph(ax, ymin, ymax)
@@ -201,7 +194,7 @@ def figure_line(row, nrow, axs, d, column_to_plot, regions, graph_options):
     """
     """
     ncol = len(regions) + 2
-    hline = 'with_all' if column_to_plot == 'incidence hebdo' else 'with'
+    hline = ['0-29', '30-59', '60+'] if column_to_plot in ['incidence hebdo', 'taux de tests hebdo', 'taux dose 1', 'taux complet'] else ['60+']
 
     ###
     # Première colonne : France et légende

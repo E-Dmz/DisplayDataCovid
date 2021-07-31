@@ -1,4 +1,5 @@
 from math import log10, floor, ceil
+from my_package.dicts import regions
 
 ordre_de_grandeur = lambda x: 10**floor(log10(x)) 
 
@@ -17,7 +18,7 @@ def delta(deltamin):
     else:
         return 10 * o, 5* o
 
-def loc_auto(lim_sup, nmajor = 5, nminor = 14):
+def loc_auto(lim_sup, nmajor = 6, nminor = 14):
     """
     given a ymax (lim_sup), calculates the graduations 
     lim_sup: integer or float
@@ -52,6 +53,25 @@ def graph_options_auto(indicateurs_dic):
 
     return graph_options_alt
 
+def last_value(df, entity = 'Corse', age_class = '60+', label = 'incidence hebdo'):
+    d = df[ (df.entity == entity)
+                    & (df.three_class == age_class) 
+                    & df[label].notna()]
+    last_day = d.jour.max()
+    lasts = d[ d.jour == last_day][label].values
+    last = lasts[0] if lasts else 0.0
+    return last
+
+def max_last_value(df, entities = regions, age_class = '60+', label = 'incidence hebdo'):
+    return max([last_value(df, entity, age_class, label) for entity in entities])
+
+
+def scale_graph_by_age_class(df, entities,  *args, factor = 1.5,):
+    dic = {
+        label:factor * max_last_value(df, entities, age_class, label) for label, age_class in args}
+
+    return graph_options_auto(dic)
+
 graph_options = {
     'incidence hebdo': {
         'ymax': 1150,
@@ -59,7 +79,7 @@ graph_options = {
         'title': 'Cas positifs par semaine,\npour 100 000 habitants',
         },
     'taux de tests hebdo': {
-        'ymax': 16000,
+        'ymax': 17500,
         'main_color': 'gray',
         'title': 'Tests pratiqués par semaine,\npour 100 000 habitants',
         },
@@ -69,27 +89,27 @@ graph_options = {
         'title': 'Tests positifs,\npour 100 tests\n(moyenne hebdomadaire)',
         },
     'taux hosp': {
-        'ymax': 372,
+        'ymax': 375,
         'main_color': 'mediumseagreen',
         'title': 'Patients hospitalisés,\npour 100 000 habitants',
         },
     'taux rea': {
-        'ymax': 58,
+        'ymax': 60,
         'main_color': 'darksalmon',
         'title': 'Patients en réanimation,\npour 100 000 habitants',
         },
     'taux décès': {
-        'ymax': 54,
+        'ymax': 60,
         'main_color': 'orchid',
         'title': "Décès à l'hôpital par semaine,\npour 100 000 habitants",
         },
     'taux dose 1': {
-       'ymax': 98,
+       'ymax': 100,
         'main_color': 'silver',
         'title': 'Première injection,\npour 100 habitants',
         },
     'taux complet': {
-        'ymax': 98,  
+        'ymax': 100,  
         'main_color': 'gold',
         'title': 'Vaccination complète,\npour 100 habitants',
         },
