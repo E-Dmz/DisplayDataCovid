@@ -163,23 +163,23 @@ def plot_three_curves(ax, df, entity, column_to_plot, whole = 'without', hline =
 
 def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = graph_options, hline = 'auto'):
     
-    if autoscale:
-        ymin = d[d.entity == entity][column_to_plot].min()
-        ymax = d[d.entity == entity][column_to_plot].max()
+
     fig, ax = plt.subplots(1, 1, figsize = (8, 4))
     kwargs = graph_options[column_to_plot]
+    if autoscale:
+        kwargs['ymax'] = d[d.entity == entity][column_to_plot].max()
+        kwargs['rescale'] = 1.1
+    format_graph(ax, **kwargs)
 
     if hline == 'auto':
         hline = ['0-29', '30-59', '60+'] if column_to_plot in ['incidence hebdo', 'taux de tests hebdo', 'taux dose 1', 'taux complet'] else ['60+']
 
     plot_three_curves(ax, d, entity, column_to_plot, hline = hline, **kwargs)
-    if autoscale: format_graph(ax, ymin, ymax)
-    else:
-        format_graph(ax, **kwargs)
+
     ax.set_title('{}'.format(entity), 
                     fontsize = 18, fontweight = 'semibold',
                     c = 'royalblue', family = 'sans', va = 'center', ha = 'center',)
-    ax.legend(bbox_to_anchor=[0, 1.1], loc='upper left', frameon=True,
+    ax.legend(bbox_to_anchor=[0, 1], loc='upper left', frameon=True,
               labelspacing=0.5, handlelength=2, handletextpad=0.5, fontsize = 11,     
               title = graph_options[column_to_plot]['title'], title_fontsize = 10,
               )
