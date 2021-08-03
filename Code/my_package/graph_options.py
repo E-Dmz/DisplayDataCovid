@@ -74,7 +74,7 @@ def scale_graph_by_age_class(df, entities,  *args, factor = 1.5,):
 
 graph_options = {
     'incidence hebdo': {
-        'ymax': 1250,
+        'ymax': 1000,#1250,
         'main_color': 'darkturquoise',
         'title': 'Cas positifs par semaine,\npour 100 000 habitants',
         },
@@ -94,12 +94,12 @@ graph_options = {
         'title': 'Patients hospitalisés,\npour 100 000 habitants',
         },
     'taux rea': {
-        'ymax': 59,
+        'ymax': 100,#59,
         'main_color': 'darksalmon',
         'title': 'Patients en réanimation,\npour 100 000 habitants',
         },
     'taux décès': {
-        'ymax': 59,
+        'ymax': 50,#59,
         'main_color': 'orchid',
         'title': "Décès à l'hôpital par semaine,\npour 100 000 habitants",
         },

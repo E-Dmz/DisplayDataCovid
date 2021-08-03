@@ -5,9 +5,6 @@
 3. plots the indicators (matplotlib)
 4. generates tweets on a twitter account (Twitter API/python-twitter)
 
-# Requested
+The code is quite messy...
 
-* for the tweeter part, you need your own keys
-
-# Installation
-
+Comments: -> @E_Dmz on Twitter
