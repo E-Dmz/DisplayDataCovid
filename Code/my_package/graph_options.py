@@ -1,5 +1,5 @@
 from math import log10, floor, ceil
-from my_package.dicts import regions
+from my_package.dicts import regions, regions_metro
 
 ordre_de_grandeur = lambda x: 10**floor(log10(x)) 
 
@@ -65,21 +65,32 @@ def last_value(df, entity = 'Corse', age_class = '60+', label = 'incidence hebdo
 def max_last_value(df, entities = regions, age_class = '60+', label = 'incidence hebdo'):
     return max([last_value(df, entity, age_class, label) for entity in entities])
 
+def max_value(df, entities = regions, age_class = '60+', label = 'incidence hebdo'):
+    d = df[ (df.entity.isin(entities))
+                    & (df.three_class == age_class) 
+                    & df[label].notna()][label]
+    return d.max()
 
-def scale_graph_by_age_class(df, entities,  *args, factor = 1.5,):
+def scale_graph_by_age_class_last(df, entities,  *args, factor = 1.5,):
     dic = {
-        label:factor * max_last_value(df, entities, age_class, label) for label, age_class in args}
+        label:factor * (max_last_value(df, entities, age_class, label)+0.001) for label, age_class in args}
+
+    return graph_options_auto(dic)
+
+def scale_graph_by_age_class_max(df, entities = regions_metro,  *args, factor = 1.1,):
+    dic = {
+        label:factor * (max_value(df, entities, age_class, label)+0.001) for label, age_class in args}
 
     return graph_options_auto(dic)
 
 graph_options = {
     'incidence hebdo': {
-        'ymax': 1000,#1250,
+        'ymax': 1250,#1250,
         'main_color': 'darkturquoise',
         'title': 'Cas positifs par semaine,\npour 100 000 habitants',
         },
     'taux de tests hebdo': {
-        'ymax': 20000,
+        'ymax': 25000,
         'main_color': 'gray',
         'title': 'Tests pratiqués par semaine,\npour 100 000 habitants',
         },

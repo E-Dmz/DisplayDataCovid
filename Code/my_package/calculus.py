@@ -12,10 +12,10 @@ from my_package.datepaths import retrieve_data
 from my_package.dicts import dep2reg, class_2_3C, reg_name, classvac_2_3C, reg_3C_pop, pops
 
 def groupby_sum(d, columns):
-    """ d: dataframe
-        columns: list of str, columns to groupby
-        returns: dataframe, grouped according to columns fed in
-                other columns are summed
+    """ returns a dataframe, grouped according to columns
+            other columns are summed
+        d: dataframe
+        columns: list of str, labels of columns to groupby
     """
     dg = (d
           .groupby(columns)
@@ -27,19 +27,19 @@ def groupby_sum(d, columns):
     return dg
 
 def columns_first(d, columns):
-    """ d: dataframe
-        by: list of str, columns to put first
-        returns: dataframe reordered
+    """ returns: dataframe reordered
+        d: dataframe
+        by: list of str, labels of columns to put first
     """
     d = d.reindex(columns = columns + [column for column in d.columns if column not in columns])
     return d
 
 def map_rename(d, col_in, col_out, func):
-    """ d: dataframe
-        col_in mapped: str, name of column mapped and deleted
-        func: function mapped
-        col_out: str, name of resulting column
-        returns: modified dataframe
+    """ returns: dataframe with a column (col_in) mapped (with func) and renamed (col_out)
+        d: dataframe
+        col_in mapped: str (label of column)
+        func: function 
+        col_out: str (new label of column)
     """
     d[col_in] = d[col_in].map(func)
     return d.rename(columns = {col_in: col_out})
@@ -47,15 +47,15 @@ def map_rename(d, col_in, col_out, func):
 
 ### functions for the coronavirus-tests dataset
 
-def sp_input():
+def df_input(dataset):
     """
-    returns din: raw dataframe
+    returns din: dataframe
     path_temp: pathway for temporary files
+    dataset: str, among ['sp-pos-quot-dep', 'donnees-hospitalieres-classe-age-covid19', 'donnees-hospitalieres-covid19', 'vacsi-a-dep']
     """
-    dataset = 'sp-pos-quot-dep'
     data_fname, path_temp = retrieve_data(dataset)
     print(data_fname)
-    din = pd.read_csv(data_fname, sep = ';', parse_dates = ['jour'], dtype = {'dep': str})
+    din = pd.read_csv(data_fname, sep = ';', parse_dates = ['jour'], dtype = {'dep': str, 'reg': str})
     return din, path_temp
 
 def sp_tot_3C(din, three_class = True,):
@@ -108,13 +108,6 @@ def sp_compute(din):
     return d
 
 ### functions for the hospital dataset
-
-def hosp_input():
-    dataset = 'donnees-hospitalieres-classe-age-covid19'
-    data_fname, path_temp = retrieve_data(dataset)
-    print(data_fname)
-    din = pd.read_csv(data_fname, sep = ';', parse_dates = ['jour'], dtype = {'reg': str})
-    return din, path_temp
 
 def hosp_3C(d, keepDROM = False):
     if keepDROM:                ## Added this to be able to plot 3 curves hosp in DROMs
@@ -170,12 +163,7 @@ def hosp_compute(din):
 
 ### functions for the hospital department dataset
 
-def hosp_dep_input():
-    dataset = 'donnees-hospitalieres-covid19'
-    data_fname, path_temp = retrieve_data(dataset)
-    print(data_fname)
-    din = pd.read_csv(data_fname, sep = ';', parse_dates = ['jour'], dtype = {'reg': str})
-    return din, path_temp
+
 
 def hosp_dep_compute(din):
     
@@ -206,12 +194,6 @@ def hosp_dep_compute(din):
 
 ### functions for the vaccine dataset
 
-def vac_input():
-    dataset = 'vacsi-a-dep'
-    data_fname, path_temp = retrieve_data(dataset)
-    din = pd.read_csv(data_fname, sep = ';', parse_dates = ['jour'], dtype = {'dep': str})
-    print(data_fname)
-    return din, path_temp
 
 def vac_tot_3C(din, three_class = True):
     din = din[~din.dep.isin(['00', '20', '750', '970', '975', '977', '978'])].reset_index(drop = True)
