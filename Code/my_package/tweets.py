@@ -25,13 +25,17 @@ tweets = [
     "... et dans les 5 dernières ⤵️",
     "... enfin dans les 5 départements et régions d'outre-mer ⤵️",
 
-    "Remarques : ces représentations graphiques décrivent l'impact de la maladie Covid-19 en France et dans ses régions.",
+    "Ces représentations graphiques décrivent l'impact de la maladie Covid-19 en France et dans ses régions.",
     "Les choix suivants ont été faits : \n\
 1️⃣ La chronologie de l'épidémie est présentée dans son intégralité ; le 1er janvier 2021 (barre verticale) et les trois périodes de confinement (zones grisées) servent de points de repère",
     "2️⃣ La population est divisée en 3 tranches d'âge : - de 30 ans, 30 à 60 ans et + de 60 ans\n\
 3️⃣ Les indicateurs représentés sont rapportés à la population de la tranche d'âge considérée, dans le territoire considéré",
     "4️⃣ Pour chaque indicateur, l'échelle des Y (à gauche) est identique dans les différents territoires (sauf indication contraire)\n\
 5️⃣ Les territoires sont ordonnés selon un paramètre, ici le taux de réanimation chez les 30-59.",
+
+    "N'hésitez-pas à me demander les chiffres sur un territoire particulier. Par exemple : la Martinique ⤵️",
+    "... l'Occitanie ⤵️",
+    "... et l'Île-de-France ⤵️"
 
 #     "Chaque choix a ses défauts mais aucune visualisation n'est parfaite.\n\
 # L'objectif est d'offrir une image simple à lire de l'impact de cette crise interminable, complémentaire des approches utilisées ailleurs.",
@@ -89,7 +93,9 @@ media = [
 #     # ["../Output/Type0/Île-de-France-incidence hebdo.png", "../Output/Type0/Île-de-France-taux hosp.png", "../Output/Type0/Île-de-France-taux rea.png", "../Output/Type0/Île-de-France-taux décès.png"],
 #     ["../Output/Type1/régions d'outre-mer, classées par taux de réanimation décroissant chez les personnes de 30 à 59 ans.png"],
 #     [],
-#     ["../Output/Type0/Martinique-incidence hebdo.png", "../Output/Type0/Martinique-taux hosp.png", "../Output/Type0/Martinique-taux rea.png", "../Output/Type0/Martinique-taux décès.png"],
+    ["../Output/Type0/Martinique-incidence hebdo.png", "../Output/Type0/Martinique-taux hosp.png", "../Output/Type0/Martinique-taux rea.png", "../Output/Type0/Martinique-taux décès.png"],
+    ["../Output/Type0/Occitanie-incidence hebdo.png","../Output/Type0/Occitanie-taux hosp.png","../Output/Type0/Occitanie-taux rea.png","../Output/Type0/Occitanie-taux décès.png"],
+    ["../Output/Type0/Île-de-France-incidence hebdo.png", "../Output/Type0/Île-de-France-taux hosp.png", "../Output/Type0/Île-de-France-taux rea.png", "../Output/Type0/Île-de-France-taux décès.png"],
 #     # ["../Output/Type0/Guyane-incidence hebdo.png", "../Output/Type0/Guyane-taux hosp.png", "../Output/Type0/Guyane-taux rea.png", "../Output/Type0/Guyane-taux décès.png"],
 #     # ["../Output/Type0/Mayotte-incidence hebdo.png", "../Output/Type0/Mayotte-taux hosp.png", "../Output/Type0/Mayotte-taux rea.png", "../Output/Type0/Mayotte-taux décès.png"],
 #     # [],

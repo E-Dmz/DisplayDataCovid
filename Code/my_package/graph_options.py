@@ -3,6 +3,13 @@ from my_package.dicts import regions, regions_metro
 
 ordre_de_grandeur = lambda x: 10**floor(log10(x)) 
 
+def rescale():
+    for label in graph_options:
+        ymax = graph_options[label]['ymax']
+        majloc, minloc = loc_auto(ymax)
+        graph_options[label]['majloc'] = majloc
+        graph_options[label]['minloc'] = minloc
+
 def delta(deltamin):
     """
     given a minimal delta, calculates the delta of majlocs and minlocs
@@ -85,27 +92,27 @@ def scale_graph_by_age_class_max(df, entities = regions_metro,  *args, factor = 
 
 graph_options = {
     'incidence hebdo': {
-        'ymax': 1250,#1250,
+        'ymax': 1300,#1250,
         'main_color': 'darkturquoise',
         'title': 'Cas positifs par semaine,\npour 100 000 habitants',
         },
     'taux de tests hebdo': {
-        'ymax': 25000,
+        'ymax': 21000,
         'main_color': 'gray',
         'title': 'Tests pratiqués par semaine,\npour 100 000 habitants',
         },
     'taux de positifs hebdo': {
-        'ymax': 30,
+        'ymax': 26,
         'main_color': 'olivedrab',
         'title': 'Tests positifs,\npour 100 tests\n(moyenne hebdomadaire)',
         },
     'taux hosp': {
-        'ymax': 375,
+        'ymax': 372,
         'main_color': 'mediumseagreen',
         'title': 'Patients hospitalisés,\npour 100 000 habitants',
         },
     'taux rea': {
-        'ymax': 100,#59,
+        'ymax': 59,#59,
         'main_color': 'darksalmon',
         'title': 'Patients en réanimation,\npour 100 000 habitants',
         },
@@ -125,8 +132,5 @@ graph_options = {
         'title': 'Vaccination complète,\npour 100 habitants',
         },
     }
-for label in graph_options:
-    ymax = graph_options[label]['ymax']
-    majloc, minloc = loc_auto(ymax)
-    graph_options[label]['majloc'] = majloc
-    graph_options[label]['minloc'] = minloc
+
+rescale()
