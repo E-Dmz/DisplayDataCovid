@@ -4,7 +4,7 @@
 
 ## Main project
 
-![This code is quite messy...](/Code/DisplayDataCovid.ipynb) 
+![This code is quite messy... but it's getting better](/Code/DisplayDataCovid.ipynb) 
 
 1. downloads the most recent data form data.gouv.fr from @SantePubliqueFrance (Data.gouv API/request/re)
 2. calculates several indicators of the Covid19 epidemic in France (pandas/numpy)
