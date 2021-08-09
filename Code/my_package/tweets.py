@@ -20,22 +20,28 @@ tweets = [
 #     "La plupart du temps je reste neutre et me concentre à représenter les chiffres les interpréter.\n\
 # Pour être transparent sur mes opinions : les vaccins sont une chance inouïe. La situation serait catastrophique sans leur déploiement massif #VaccinezVous",    
     
-    f"[🤖 MAJ {now_text}] Suivi de l'épidémie à travers 7 indicateurs dans 4 régions métropolitaines ⤵️",
+    f"[🤖 MAJ {now_text}] Suivi de l'épidémie à travers 7 indicateurs dans les 4 régions métropolitaines qui ont actuellement le plus fort taux de réanimation chez les 30-59 ans ⤵️",
     "... dans les 4 régions suivantes ⤵️",
     "... et dans les 5 dernières ⤵️",
-    "... enfin dans les 5 départements et régions d'outre-mer ⤵️",
+    "... enfin dans les 5 départements et régions d'outre-mer (l'échelle a été changée, pour prendre en compte les valeurs beaucoup plus élevées) ⤵️",
 
-    "Ces représentations graphiques décrivent l'impact de la maladie Covid-19 en France et dans ses régions.",
-    "Les choix suivants ont été faits : \n\
+    "Ces représentations graphiques décrivent comment l'épidémie de Covid-19 ont impacté et continue à impacté la France et ses régions.",
+    "Des choix ont été faits : \n\
 1️⃣ La chronologie de l'épidémie est présentée dans son intégralité ; le 1er janvier 2021 (barre verticale) et les trois périodes de confinement (zones grisées) servent de points de repère",
     "2️⃣ La population est divisée en 3 tranches d'âge : - de 30 ans, 30 à 60 ans et + de 60 ans\n\
 3️⃣ Les indicateurs représentés sont rapportés à la population de la tranche d'âge considérée, dans le territoire considéré",
     "4️⃣ Pour chaque indicateur, l'échelle des Y (à gauche) est identique dans les différents territoires (sauf indication contraire)\n\
 5️⃣ Les territoires sont ordonnés selon un paramètre, ici le taux de réanimation chez les 30-59.",
 
-    "N'hésitez-pas à me demander les chiffres sur un territoire particulier. Par exemple : la Martinique ⤵️",
-    "... l'Occitanie ⤵️",
-    "... et l'Île-de-France ⤵️"
+    "Voici l'incidence et les indicateurs hospitaliers (ici l'échelle est optimisée)\n\
+1️⃣ sur l'ensemble de la France ⤵️", 
+    "... 2️⃣ en Martinique ⤵️",
+    "... 3️⃣ en Guadeloupe ⤵️",
+    "... 4️⃣ en Occitanie ⤵️",
+
+    "... et 5️⃣ en Île-de-France ⤵️",
+    "👉 code source @E_Dmz https://github.com/E-Dmz/DisplayDataCovid\n\
+👉 données @SantePubliqueFr @datagouvfr."
 
 #     "Chaque choix a ses défauts mais aucune visualisation n'est parfaite.\n\
 # L'objectif est d'offrir une image simple à lire de l'impact de cette crise interminable, complémentaire des approches utilisées ailleurs.",
@@ -93,9 +99,14 @@ media = [
 #     # ["../Output/Type0/Île-de-France-incidence hebdo.png", "../Output/Type0/Île-de-France-taux hosp.png", "../Output/Type0/Île-de-France-taux rea.png", "../Output/Type0/Île-de-France-taux décès.png"],
 #     ["../Output/Type1/régions d'outre-mer, classées par taux de réanimation décroissant chez les personnes de 30 à 59 ans.png"],
 #     [],
+    ["../Output/Type0/France-incidence hebdo.png", "../Output/Type0/France-taux hosp.png", "../Output/Type0/France-taux rea.png", "../Output/Type0/France-taux décès.png"],
     ["../Output/Type0/Martinique-incidence hebdo.png", "../Output/Type0/Martinique-taux hosp.png", "../Output/Type0/Martinique-taux rea.png", "../Output/Type0/Martinique-taux décès.png"],
+    ["../Output/Type0/Guadeloupe-incidence hebdo.png", "../Output/Type0/Guadeloupe-taux hosp.png", "../Output/Type0/Guadeloupe-taux rea.png", "../Output/Type0/Guadeloupe-taux décès.png"],
     ["../Output/Type0/Occitanie-incidence hebdo.png","../Output/Type0/Occitanie-taux hosp.png","../Output/Type0/Occitanie-taux rea.png","../Output/Type0/Occitanie-taux décès.png"],
+
     ["../Output/Type0/Île-de-France-incidence hebdo.png", "../Output/Type0/Île-de-France-taux hosp.png", "../Output/Type0/Île-de-France-taux rea.png", "../Output/Type0/Île-de-France-taux décès.png"],
+    [],
+
 #     # ["../Output/Type0/Guyane-incidence hebdo.png", "../Output/Type0/Guyane-taux hosp.png", "../Output/Type0/Guyane-taux rea.png", "../Output/Type0/Guyane-taux décès.png"],
 #     # ["../Output/Type0/Mayotte-incidence hebdo.png", "../Output/Type0/Mayotte-taux hosp.png", "../Output/Type0/Mayotte-taux rea.png", "../Output/Type0/Mayotte-taux décès.png"],
 #     # [],

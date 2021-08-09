@@ -1,53 +1,54 @@
 from math import log10, floor, ceil
 from my_package.dicts import regions, regions_metro
 
-ordre_de_grandeur = lambda x: 10**floor(log10(x)) 
-
-def rescale():
+def rescale(graph_options):
+    """modifies graph_options"""
     for label in graph_options:
         ymax = graph_options[label]['ymax']
         majloc, minloc = loc_auto(ymax)
         graph_options[label]['majloc'] = majloc
         graph_options[label]['minloc'] = minloc
+    return graph_options
 
-def delta(deltamin):
-    """
-    given a minimal delta, calculates the delta of majlocs and minlocs
-    deltamin: float
-    returns 2 floats
-    """
-    o = ordre_de_grandeur(deltamin)
-    r = deltamin/ordre_de_grandeur(deltamin)
+def calculate_deltas(delta):
+    """calculates the delta for majlocs and for minlocs
+    deltamin: 1 float
+    returns: 2 floats"""
+    order_of_magnitude = lambda x: 10**floor(log10(x)) 
+    o = order_of_magnitude(delta)
+    r = delta / o
+
     if r < 2:
-        return 2 * o, o
+        delta_majloc = 2 * o
+        delta_minloc = o
     elif r <5:
-        return 5 * o, o
+        delta_majloc = 5 * o 
+        delta_minloc = o
     else:
-        return 10 * o, 5* o
+        delta_majloc = 10 * o
+        delta_minloc = 5* o
+
+    return delta_majloc, delta_minloc
 
 def loc_auto(lim_sup, nmajor = 6, nminor = 14):
-    """
-    given a ymax (lim_sup), calculates the graduations 
+    """given lim_sup, calculates the graduations (majlocs and minlocs)
     lim_sup: integer or float
     nmajor: integer, max number of major graduations
-    nminor: integer, max number of minor graduations
-    returns 
-    majloc, minloc: lists of floats
-    """
-    deltamin = lim_sup/nmajor
-    dmaj, dmin = delta(deltamin)
-    
-    majloc = [dmaj * i for i in range(ceil(lim_sup/dmaj))]
-    minloc = [dmin * i for i in range(ceil(lim_sup/dmin))]
-    if len(minloc) > nminor:
-        minloc = majloc
+    nminor: integer, max number of minor graduations 
+    majloc, minloc: lists of floats"""
+    delta = lim_sup / nmajor
+    delta_majloc, delta_minloc = calculate_deltas(delta)
+    majlocs = [delta_majloc * i for i in range(ceil(lim_sup/delta_majloc))]
+    minlocs = [delta_minloc * i for i in range(ceil(lim_sup/delta_minloc))]
+    if len(minlocs) > nminor:
+        minlocs = majlocs
 
-    return majloc, minloc 
+    return majlocs, minlocs
 
 def graph_options_auto(indicateurs_dic):
     """
-    returns a modified graph_options dictionnary
-    indicateurs_dic: dictionary with keys = labels, values = ymax
+    modifies the graph_options dictionary
+    indicateurs_dic: dictionary with keys: labels, values: ymaxs
     """
     graph_options_alt = graph_options.copy()
 
@@ -61,6 +62,7 @@ def graph_options_auto(indicateurs_dic):
     return graph_options_alt
 
 def last_value(df, entity = 'Corse', age_class = '60+', label = 'incidence hebdo'):
+    """returns the last value of an indicator (label), for in a geographical entity for a given age class"""
     d = df[ (df.entity == entity)
                     & (df.three_class == age_class) 
                     & df[label].notna()]
@@ -69,22 +71,26 @@ def last_value(df, entity = 'Corse', age_class = '60+', label = 'incidence hebdo
     last = lasts[0] if lasts else 0.0
     return last
 
-def max_last_value(df, entities = regions, age_class = '60+', label = 'incidence hebdo'):
-    return max([last_value(df, entity, age_class, label) for entity in entities])
+def max_last_value(df, entities = regions, age_classes = ['0-29', '30-59','60+'], label = 'incidence hebdo'):
+    """returns the last max value for one indicator (label) for all given entities and age_classes"""
+    return max([last_value(df, entity, age_class, label) for entity in entities for age_class in age_classes])
 
-def max_value(df, entities = regions, age_class = '60+', label = 'incidence hebdo'):
+def max_value(df, entities = regions, age_classes = ['0-29', '30-59','60+'], label = 'incidence hebdo'):
+    """returns the max value for one indicator (label) for all given entities and age_classes"""
     d = df[ (df.entity.isin(entities))
-                    & (df.three_class == age_class) 
+                    & (df.three_class.isin(age_classes))
                     & df[label].notna()][label]
     return d.max()
 
 def scale_graph_by_age_class_last(df, entities,  *args, factor = 1.5,):
+    """returns a modified graph_options dictionary"""
     dic = {
-        label:factor * (max_last_value(df, entities, age_class, label)+0.001) for label, age_class in args}
+        label:factor * (max_last_value(df, entities, age_classes, label)+0.001) for label, age_classes in args}
 
     return graph_options_auto(dic)
 
 def scale_graph_by_age_class_max(df, entities = regions_metro,  *args, factor = 1.1,):
+    """returns a modified graph_options dictionary"""
     dic = {
         label:factor * (max_value(df, entities, age_class, label)+0.001) for label, age_class in args}
 
@@ -92,7 +98,7 @@ def scale_graph_by_age_class_max(df, entities = regions_metro,  *args, factor = 
 
 graph_options = {
     'incidence hebdo': {
-        'ymax': 1300,#1250,
+        'ymax': 1300,
         'main_color': 'darkturquoise',
         'title': 'Cas positifs par semaine,\npour 100 000 habitants',
         },
@@ -112,12 +118,12 @@ graph_options = {
         'title': 'Patients hospitalisés,\npour 100 000 habitants',
         },
     'taux rea': {
-        'ymax': 59,#59,
+        'ymax': 59,
         'main_color': 'darksalmon',
         'title': 'Patients en réanimation,\npour 100 000 habitants',
         },
     'taux décès': {
-        'ymax': 50,#59,
+        'ymax': 50,
         'main_color': 'orchid',
         'title': "Décès à l'hôpital par semaine,\npour 100 000 habitants",
         },
@@ -133,4 +139,4 @@ graph_options = {
         },
     }
 
-rescale()
+graph_options = rescale(graph_options)
