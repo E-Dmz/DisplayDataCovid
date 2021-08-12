@@ -25,8 +25,8 @@ tweets = [
     "... et dans les 5 dernières ⤵️",
     "... enfin dans les 5 départements et régions d'outre-mer (l'échelle a été changée, pour prendre en compte les valeurs beaucoup plus élevées) ⤵️",
 
-    "Ces représentations graphiques décrivent comment l'épidémie de Covid-19 ont impacté et continue à impacté la France et ses régions.",
-    "Des choix ont été faits : \n\
+    "Ces représentations graphiques décrivent comment l'épidémie de Covid-19 a impacté et continue à impacter la France et ses régions.",
+    "Les choix suivants ont été faits : \n\
 1️⃣ La chronologie de l'épidémie est présentée dans son intégralité ; le 1er janvier 2021 (barre verticale) et les trois périodes de confinement (zones grisées) servent de points de repère",
     "2️⃣ La population est divisée en 3 tranches d'âge : - de 30 ans, 30 à 60 ans et + de 60 ans\n\
 3️⃣ Les indicateurs représentés sont rapportés à la population de la tranche d'âge considérée, dans le territoire considéré",

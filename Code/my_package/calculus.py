@@ -9,13 +9,15 @@
 import pandas as pd
 
 from my_package.datepaths import retrieve_data
-from my_package.dicts import dep2reg, class_2_3C, reg_name, classvac_2_3C, reg_3C_pop, pops
+from my_package.dicts import dep_to_reg, reg_name 
+
+### general functions
 
 def groupby_sum(d, columns):
     """ returns a dataframe, grouped according to columns
             other columns are summed
         d: dataframe
-        columns: list of str, labels of columns to groupby
+        columns: list of str, labels of columns to groupby (example : group by entity and/or age_class)
     """
     dg = (d
           .groupby(columns)
@@ -29,7 +31,7 @@ def groupby_sum(d, columns):
 def columns_first(d, columns):
     """ returns: dataframe reordered
         d: dataframe
-        by: list of str, labels of columns to put first
+        columns: list of str, labels of columns to put first
     """
     d = d.reindex(columns = columns + [column for column in d.columns if column not in columns])
     return d
@@ -38,15 +40,13 @@ def map_rename(d, col_in, col_out, func):
     """ returns: dataframe with a column (col_in) mapped (with func) and renamed (col_out)
         d: dataframe
         col_in mapped: str (label of column)
-        func: function 
         col_out: str (new label of column)
+        func: function 
     """
     d[col_in] = d[col_in].map(func)
     return d.rename(columns = {col_in: col_out})
 
-
-### functions for the coronavirus-tests dataset
-
+#universal input
 def df_input(dataset):
     """
     returns din: dataframe
@@ -55,41 +55,70 @@ def df_input(dataset):
     """
     data_fname, path_temp = retrieve_data(dataset)
     print(data_fname)
-    din = pd.read_csv(data_fname, sep = ';', parse_dates = ['jour'], dtype = {'dep': str, 'reg': str})
-    return din, path_temp
+    df = pd.read_csv(data_fname, sep = ';', parse_dates = ['jour'], dtype = {'dep': str, 'reg': str})
+    if 'dep' in df.columns:
+        df = df[~df.dep.isin(['00', '20', '750', '970', '975', '977', '978', '98', '99', '947'])].reset_index(drop = True)
+    df = df.rename(columns = {
+        'dep': 'entity',
+        'pop': 'population',
+        'reg': 'entity',
+        'cl_age90': 'age_class',
+        'clage_vacsi': 'age_class',
+    })
+    return df
 
-def sp_tot_3C(din, three_class = True,):
 
-    din = din.copy()
-    din = din[~din.dep.isin(['970', '975', '977', '978'])].reset_index(drop = True)
+#universal tot-3C
+def compute_reg_nat(din):
+    d_dep = din.copy() 
 
-    d_dep = din.rename(columns = {'dep': 'entity'})
+    d_reg = din.copy()
+    d_reg['entity'] = d_reg['entity'].map(lambda dep: dep_to_reg[dep])
+    d_reg = groupby_sum(d_reg, columns = ['entity', 'jour', 'age_class'])
 
-    d = map_rename(din, 'dep', 'entity', lambda x: dep2reg[x])
-    d_reg = groupby_sum(d, columns = ['entity', 'jour', 'cl_age90'])
-
-    d = din.drop(columns = ['dep'])
-    d_nat = groupby_sum(d, columns = ['jour', 'cl_age90'])
+    d_nat = din.copy()
+    d_nat = groupby_sum(d_nat, columns = ['jour', 'age_class'])
     d_nat['entity'] = 'France'
 
-    d = pd.merge(d_dep, d_reg, how = 'outer')
-    d_tot = pd.merge(d, d_nat, how = 'outer')
+    d_dep_reg = pd.merge(d_dep, d_reg, how = 'outer')
+    d_dep_reg_nat = pd.merge(d_dep_reg, d_nat, how = 'outer')
 
-    if three_class:
-        d = map_rename(d_tot, 'cl_age90', 'three_class', lambda x: class_2_3C[x])
-        d3C = groupby_sum(d, ['entity', 'jour', 'three_class'])
-        return columns_first(d3C, columns = ['entity', 'three_class', 'jour'])
-    else:
-        return columns_first(d_tot, columns = ['entity', 'cl_age90', 'jour'])
+    return columns_first(d_dep_reg_nat, columns = ['entity', 'age_class', 'jour'])
 
-def sp_compute(din):
+def compute_nat(din):
+    d_reg = din.copy()
+    d_reg['entity'] = d_reg['entity'].map(lambda reg_number: reg_name[reg_number])
+    d_reg = groupby_sum(d_reg, columns = ['entity', 'jour', 'age_class'])
+
+    d_nat = din.copy()
+    d_nat = groupby_sum(d_nat, columns = ['jour', 'age_class'])
+    d_nat['entity'] = 'France'
+
+    d_reg_nat = pd.merge(d_reg, d_nat, how = 'outer')
+
+    return columns_first(d_reg_nat, columns = ['entity', 'age_class', 'jour'])
+
+def compute_new_age_classes(d, map_age_classes):
+    """map_age_classes is a dictionnary"""
+    d ['age_class']= d['age_class'].map(lambda old_age_class: map_age_classes[old_age_class])
+    d_new_age_classes = groupby_sum(d, ['entity', 'jour', 'age_class'])
+    return columns_first(d_new_age_classes, columns = ['entity', 'age_class', 'jour'])
+
+def add_population_column(df, population_by_entity_and_age_class):
+    df['population'] = df.apply(lambda df: population_by_entity_and_age_class[df.entity][df.age_class], axis = 1)
+    return columns_first(df, columns = ['entity', 'age_class', 'jour'])
+
+
+# for the sp_pos dataset
+
+def sp_pos_compute(din):
     """
     d: dataframe with columns 'P', 'T' and 'pop'
     returns: dataframe with extra columns 'P hebdo', 'T hebdo', 'incidence hebdo', 'taux de positifs hebdo', 'taux de tests hebdo'
     """
     d = din.copy()
     d1 = (d
-            .groupby(['entity', 'three_class'])
+            .groupby(['entity', 'age_class'])
             .rolling(window = 7, on = 'jour')
             .sum()
             .fillna(0)
@@ -101,69 +130,28 @@ def sp_compute(din):
                                 })
         )
     d[['P hebdo', 'T hebdo']] = d1[['P hebdo', 'T hebdo']]
-    d['incidence hebdo'] = d['P hebdo'] / d['pop'] * 100000
+    d['incidence hebdo'] = d['P hebdo'] / d.population * 100000
     d['taux de positifs hebdo'] = d['P hebdo'] / d['T hebdo'] * 100
-    d['taux de tests hebdo'] = d['T hebdo'] / d['pop'] * 100000
+    d['taux de tests hebdo'] = d['T hebdo'] / d.population * 100000
     
     return d
 
-### functions for the hospital dataset
-
-def hosp_3C(d, keepDROM = False):
-    if keepDROM:                ## Added this to be able to plot 3 curves hosp in DROMs
-        d['entity'] = (d['reg']
-                .map(lambda x: reg_name[str(x)] )
-                )
-                
-    else:  
-        d['entity'] = (d['reg']
-                .map(lambda x: reg_name[str(x)] )
-                .replace({
-                    'Guadeloupe':'Outre-mer (DROM)',
-                    'Martinique':'Outre-mer (DROM)',
-                    'Guyane':'Outre-mer (DROM)',
-                    'La Réunion':'Outre-mer (DROM)',
-                    'Mayotte':'Outre-mer (DROM)',
-                })
-                )
-    d['three_class'] = d['cl_age90'].map(lambda x: class_2_3C[x])
-    
-    d.drop(columns = ['reg', 'cl_age90'], inplace = True)
-    
-    d_reg = groupby_sum(d, columns = ['entity', 'jour', 'three_class',])
-
-    d = d_reg.copy()
-    d_nat = groupby_sum(d, columns = ['jour', 'three_class',])
-    d_nat['entity'] = 'France'
-
-    d_tot = pd.merge(d_reg, d_nat, how = 'outer')
-
-    d_tot = d_tot.drop(columns = ['HospConv', 'SSR_USLD', 'autres', 'rad'])
-
-    return columns_first(d_tot, ['entity', 'three_class', 'jour',])
+### function for the hospital dataset
 
 def hosp_compute(din):
     d = din.copy()
-    d['dc hebdo'] = d['dc'] - (d.groupby(['entity', 'three_class'])
+    d['dc_hebdo'] = d['dc'] - (d.groupby(['entity', 'age_class'])
                             .shift(7)
                             )['dc']
-    d['taux hosp'] = d.apply(lambda x: x['hosp'] / reg_3C_pop 
-                                                        [ x['entity'] ]
-                                                        [ x['three_class'] ] * 100000, 
+    d['taux hosp'] = d.apply(lambda df: df.hosp/df.population * 100000, 
                             axis = "columns")
-    d['taux rea'] = d.apply(lambda x: x['rea'] / reg_3C_pop
-                                                        [ x['entity'] ]
-                                                        [ x['three_class'] ] * 100000, 
+    d['taux rea'] = d.apply(lambda  df: df.rea/df.population * 100000, 
                             axis = "columns")
-    d['taux décès'] = d.apply(lambda x: x['dc hebdo'] / reg_3C_pop
-                                                        [ x['entity'] ]
-                                                        [ x['three_class'] ] * 100000, 
+    d['taux décès'] = d.apply(lambda  df: df.dc_hebdo/df.population * 100000, 
                             axis = "columns")
     return d
 
 ### functions for the hospital department dataset
-
-
 
 def hosp_dep_compute(din):
     
@@ -178,53 +166,20 @@ def hosp_dep_compute(din):
 
     d = d2.copy()
     
-    d['taux hosp'] = d.apply(lambda x: x['hosp'] / pops 
-                                                        [ x['entity'] ]
-                                                        [ 'whole' ] * 100000, 
+    d['taux hosp'] = d.apply(lambda df: df.hosp/df.population * 100000, 
                             axis = "columns")
-    d['taux rea'] = d.apply(lambda x: x['rea'] / pops
-                                                        [ x['entity'] ]
-                                                        [ 'whole' ] * 100000, 
+    d['taux rea'] = d.apply(lambda df: df.rea/df.population * 100000, 
                             axis = "columns")
-    d['taux décès'] = d.apply(lambda x: x['dc hebdo'] / pops
-                                                        [ x['entity'] ]
-                                                        [ 'whole' ] * 100000, 
+    d['taux décès'] = d.apply(lambda df: df.dc/df.population * 100000,
                             axis = "columns")
     return d
 
 ### functions for the vaccine dataset
 
-
-def vac_tot_3C(din, three_class = True):
-    din = din[~din.dep.isin(['00', '20', '750', '970', '975', '977', '978'])].reset_index(drop = True)
-
-    d_dep = din.rename(columns = {'dep': 'entity'})
-
-    d = map_rename(din, 'dep', 'entity', lambda x: dep2reg[x])
-    d_reg = groupby_sum(d, columns = ['entity', 'jour', 'clage_vacsi'])
-
-    d = din.drop(columns = ['dep'])
-    d_nat = groupby_sum(d, columns = ['jour', 'clage_vacsi'])
-    d_nat['entity'] = 'France'
-
-    d = pd.merge(d_dep, d_reg, how = 'outer')
-    d_tot = pd.merge(d, d_nat, how = 'outer')
-
-    if not three_class:
-        return columns_first(d, columns = ['entity', 'clage_vacsi', 'jour'])
-    else:
-        d = map_rename(d_tot, 'clage_vacsi', 'three_class', lambda x: classvac_2_3C[x])
-        d3C = groupby_sum(d, ['entity', 'jour', 'three_class'])
-        return columns_first(d3C, columns = ['entity', 'three_class', 'jour'])
-
 def vac_compute(din):
     d = din.copy()
-    d['taux dose 1'] = d.apply(lambda x: x['n_cum_dose1'] / reg_3C_pop 
-                                                    [ x['entity'] ]
-                                                    [ x['three_class'] ] * 100, 
+    d['taux dose 1'] = d.apply(lambda df: df.n_cum_dose1 / df.population * 100, 
                          axis = "columns")
-    d['taux complet'] = d.apply(lambda x: x['n_cum_complet'] / reg_3C_pop
-                                                    [ x['entity'] ]
-                                                    [ x['three_class'] ] * 100, 
+    d['taux complet'] = d.apply(lambda df: df.n_cum_complet / df.population * 100, 
                         axis = "columns")
     return d

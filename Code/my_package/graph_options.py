@@ -1,15 +1,6 @@
 from math import log10, floor, ceil
 from my_package.dicts import regions, regions_metro
 
-def rescale(graph_options):
-    """modifies graph_options"""
-    for label in graph_options:
-        ymax = graph_options[label]['ymax']
-        majloc, minloc = loc_auto(ymax)
-        graph_options[label]['majloc'] = majloc
-        graph_options[label]['minloc'] = minloc
-    return graph_options
-
 def calculate_deltas(delta):
     """calculates the delta for majlocs and for minlocs
     deltamin: 1 float
@@ -42,29 +33,35 @@ def loc_auto(lim_sup, nmajor = 6, nminor = 14):
     minlocs = [delta_minloc * i for i in range(ceil(lim_sup/delta_minloc))]
     if len(minlocs) > nminor:
         minlocs = majlocs
-
     return majlocs, minlocs
 
-def graph_options_auto(indicateurs_dic):
+def rescale(graph_options):
+    """modifies graph_options with values of majloc and minloc"""
+    for label in graph_options:
+        ymax = graph_options[label]['ymax']
+        majloc, minloc = loc_auto(ymax)
+        graph_options[label]['majloc'] = majloc
+        graph_options[label]['minloc'] = minloc
+    return graph_options
+
+def graph_options_auto(graph_options, indicateurs_dic):
     """
     modifies the graph_options dictionary
     indicateurs_dic: dictionary with keys: labels, values: ymaxs
     """
-    graph_options_alt = graph_options.copy()
 
     for label, ymax in indicateurs_dic.items():
-        modified_item  = graph_options_alt[label]
-        modified_item['ymax'] = ymax
+        graph_options[label]['ymax'] = ymax
         locs = loc_auto(ymax)
-        modified_item['majloc'] = locs[0]
-        modified_item['minloc'] = locs[1]
+        graph_options[label]['majloc'] = locs[0]
+        graph_options[label]['minloc'] = locs[1]
 
-    return graph_options_alt
+    return graph_options
 
 def last_value(df, entity = 'Corse', age_class = '60+', label = 'incidence hebdo'):
     """returns the last value of an indicator (label), for in a geographical entity for a given age class"""
     d = df[ (df.entity == entity)
-                    & (df.three_class == age_class) 
+                    & (df.age_class == age_class) 
                     & df[label].notna()]
     last_day = d.jour.max()
     lasts = d[ d.jour == last_day][label].values
@@ -78,23 +75,23 @@ def max_last_value(df, entities = regions, age_classes = ['0-29', '30-59','60+']
 def max_value(df, entities = regions, age_classes = ['0-29', '30-59','60+'], label = 'incidence hebdo'):
     """returns the max value for one indicator (label) for all given entities and age_classes"""
     d = df[ (df.entity.isin(entities))
-                    & (df.three_class.isin(age_classes))
+                    & (df.age_class.isin(age_classes))
                     & df[label].notna()][label]
     return d.max()
 
 def scale_graph_by_age_class_last(df, entities,  *args, factor = 1.5,):
     """returns a modified graph_options dictionary"""
     dic = {
-        label:factor * (max_last_value(df, entities, age_classes, label)+0.001) for label, age_classes in args}
+        label:factor * (max_last_value(df, entities, age_classes, label)+0.001) for (label, age_classes) in args}
 
-    return graph_options_auto(dic)
+    return graph_options_auto(graph_options, dic)
 
-def scale_graph_by_age_class_max(df, entities = regions_metro,  *args, factor = 1.1,):
+def scale_graph_by_age_class_max(graph_options, df, entities = regions_metro,  *args, factor = 1.1,):
     """returns a modified graph_options dictionary"""
     dic = {
-        label:factor * (max_value(df, entities, age_class, label)+0.001) for label, age_class in args}
+        label:factor * (max_value(df, entities, age_classes, label)+0.001) for label, age_classes in args}
 
-    return graph_options_auto(dic)
+    return graph_options_auto(graph_options, dic)
 
 graph_options = {
     'incidence hebdo': {

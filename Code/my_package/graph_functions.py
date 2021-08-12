@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from my_package.datepaths import output_dir, save_output, TODAY
-from my_package.dicts import reg_2lignes, reg2dep, dep_name, deps_outlay_fig_synthese, pops_France_str, pops_regs_str
+from my_package.dicts import reg_2lignes, dep_name, deps_outlay_fig_synthese, pops_France_str, pops_regs_str, population_by_entity_and_age_class_30_60, reg_to_dep
 
 from my_package.graph_options import graph_options, last_value
 
@@ -154,11 +154,11 @@ def plot_three_curves(ax, df, entity, column_to_plot, whole = 'without', hline =
             [3,                 1.5,            1],
             ['60 ans et +',     '30-59 ans',    '0-29 ans']
             ):
-            dplot = df.loc[df.entity == entity].loc[df.three_class == age_class]
+            dplot = df.loc[df.entity == entity].loc[df.age_class == age_class]
             ax.plot(dplot.jour, dplot[column_to_plot], c = c, linewidth = linewidth, label = label)
 
     if whole in ['with', 'only']: # tracé de la courbe population entière
-        dplot = df.loc[df.entity == entity].loc[df.three_class == 'whole']
+        dplot = df.loc[df.entity == entity].loc[df.age_class == 'whole']
         ax.plot(dplot.jour, dplot[column_to_plot], c = main_color, linewidth = 1.5, linestyle = '-', label = 'tous âges')
 
 def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = graph_options, hline = 'auto'):
@@ -176,7 +176,7 @@ def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = 
 
     plot_three_curves(ax, d, entity, column_to_plot, hline = hline, **kwargs)
 
-    ax.set_title('{}'.format(entity), 
+    ax.set_title(f"{entity}", 
                     fontsize = 18, fontweight = 'semibold',
                     c = 'royalblue', family = 'sans', va = 'center', ha = 'center',)
     ax.legend(bbox_to_anchor=[0, 1], loc='upper left', frameon=True,
@@ -185,6 +185,8 @@ def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = 
               )
     plt.setp(ax.get_legend().get_title(), multialignment='center')
 
+    plt.suptitle(t = f"En {entity}, il y a actuellement" + '\n'.join([f"{last_value(d, entity, age_class, column_to_plot) * population_by_entity_and_age_class_30_60[entity][age_class]/1000000 :.1f} sur {population_by_entity_and_age_class_30_60[entity][age_class]}" for age_class in ['0-29', '30-59', '60+']]))
+    
     dir_PNG = f'{output_dir}Type0/'
     fig_id = f'{entity}-{column_to_plot}'
     save_output(fig, dir_PNG, fig_id)
@@ -317,7 +319,7 @@ def fig_type2(d, column_to_plot, regions_ordered):
     (ax.legend(bbox_to_anchor=[0.5, -.7], 
               loc='center',
               labelspacing=0.5,       
-              handlelength=2, 
+              handlelength=2,  
               handletextpad=0.5,
               frameon=True,
               fontsize = 11,
@@ -391,7 +393,7 @@ def fig_type3(d, region, column_to_plot, hosp = False):
     #####
     # départements correspondant à la région
     #
-        deps = reg2dep[region] 
+        deps = reg_to_dep[region] 
 
     #####
     # layout
@@ -427,7 +429,7 @@ dont + de 60 ans : {class_older} millions, 30 à 59 ans : {class_middle} million
                 & (d.jour <= np.datetime64(dt.datetime.fromisoformat(DATE[0]))))
         deps = (d[(last_week) 
                         & (d.entity.isin(deps))
-                        & (d.three_class == '60+')]
+                        & (d.age_class == '60+')]
                     .groupby('entity')[column_to_plot]
                     .mean()
                     .sort_values(ascending = False)
