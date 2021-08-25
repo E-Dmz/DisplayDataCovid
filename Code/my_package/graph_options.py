@@ -79,18 +79,18 @@ def max_value(df, entities = regions, age_classes = ['0-29', '30-59','60+'], lab
                     & df[label].notna()][label]
     return d.max()
 
-def scale_graph_by_age_class_last(df, entities,  *args, factor = 1.5,):
+def scale_graph_by_age_class_last(graph_options, df, entities,  *args, factor = 1.5,):
     """returns a modified graph_options dictionary"""
     dic = {
-        label:factor * (max_last_value(df, entities, age_classes, label)+0.001) for (label, age_classes) in args}
-
+        label:factor * (max_last_value(df, entities, age_classes, label) + 0.001) for (label, age_classes) in args
+        }
     return graph_options_auto(graph_options, dic)
 
-def scale_graph_by_age_class_max(graph_options, df, entities = regions_metro,  *args, factor = 1.1,):
+def scale_graph_by_age_class_max(graph_options, df, entities,  *args, factor = 1.1,):
     """returns a modified graph_options dictionary"""
     dic = {
-        label:factor * (max_value(df, entities, age_classes, label)+0.001) for label, age_classes in args}
-
+        label:factor * (max_value(df, entities, age_classes, label) + 0.001) for (label, age_classes) in args
+        }
     return graph_options_auto(graph_options, dic)
 
 graph_options = {

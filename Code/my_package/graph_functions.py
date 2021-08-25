@@ -179,13 +179,15 @@ def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = 
     ax.set_title(f"{entity}", 
                     fontsize = 18, fontweight = 'semibold',
                     c = 'royalblue', family = 'sans', va = 'center', ha = 'center',)
-    ax.legend(bbox_to_anchor=[0, 1], loc='upper left', frameon=True,
+    ax.legend(bbox_to_anchor=[0, 1], loc='lower left', frameon=True,
               labelspacing=0.5, handlelength=2, handletextpad=0.5, fontsize = 11,     
               title = graph_options[column_to_plot]['title'], title_fontsize = 10,
               )
     plt.setp(ax.get_legend().get_title(), multialignment='center')
 
-    plt.suptitle(t = f"En {entity}, il y a actuellement" + '\n'.join([f"{last_value(d, entity, age_class, column_to_plot) * population_by_entity_and_age_class_30_60[entity][age_class]/1000000 :.1f} sur {population_by_entity_and_age_class_30_60[entity][age_class]}" for age_class in ['0-29', '30-59', '60+']]))
+    plt.suptitle(ha = 'right', va = 'top', fontsize = 10, 
+                        x = .9, y = 1, 
+                        t = '\n'.join([f"{int(last_value(d, entity, age_class, column_to_plot) * population_by_entity_and_age_class_30_60[entity][age_class] / 100000):d} personnes {age_class}" for age_class in ['0-29', '30-59', '60+']]))
     
     dir_PNG = f'{output_dir}Type0/'
     fig_id = f'{entity}-{column_to_plot}'
