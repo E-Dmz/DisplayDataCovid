@@ -13,11 +13,11 @@
 
 Régions métropolitaines (1/3)|Régions métropolitaines (2/3)
 -|-
-![](Output/Type1/r%C3%A9gions%20m%C3%A9tropolitaines%201%20sur%203%2C%20class%C3%A9es%20par%20taux%20de%20r%C3%A9animation%20d%C3%A9croissant%20chez%20les%20personnes%20de%2030%20%C3%A0%2059%20ans.png)|![](Output/Type1/r%C3%A9gions%20m%C3%A9tropolitaines%202%20sur%203%2C%20class%C3%A9es%20par%20taux%20de%20r%C3%A9animation%20d%C3%A9croissant%20chez%20les%20personnes%20de%2030%20%C3%A0%2059%20ans.png)
+![](/Output/Type1/r%C3%A9gions%20m%C3%A9tropolitaines%201%20sur%203%2C%20class%C3%A9es%20par%20taux%20de%20r%C3%A9animation%20d%C3%A9croissant%20chez%20les%20personnes%20de%20plus%20de%2060%20ans.png)|![](/Output/Type1/r%C3%A9gions%20m%C3%A9tropolitaines%202%20sur%203%2C%20class%C3%A9es%20par%20taux%20de%20r%C3%A9animation%20d%C3%A9croissant%20chez%20les%20personnes%20de%20plus%20de%2060%20ans.png))
 
 Régions métropolitaines (3/3)|Départements et régions d'outre-mer
 -|-
-![](Output/Type1/r%C3%A9gions%20m%C3%A9tropolitaines%203%20sur%203%2C%20class%C3%A9es%20par%20taux%20de%20r%C3%A9animation%20d%C3%A9croissant%20chez%20les%20personnes%20de%2030%20%C3%A0%2059%20ans.png)|![](Output/Type1/r%C3%A9gions%20d'outre-mer%2C%20class%C3%A9es%20par%20taux%20de%20r%C3%A9animation%20d%C3%A9croissant%20chez%20les%20personnes%20de%2030%20%C3%A0%2059%20ans.png)
+![](/Output/Type1/r%C3%A9gions%20m%C3%A9tropolitaines%203%20sur%203%2C%20class%C3%A9es%20par%20taux%20de%20r%C3%A9animation%20d%C3%A9croissant%20chez%20les%20personnes%20de%20plus%20de%2060%20ans.png)|![](Output/Type1/r%C3%A9gions%20d'outre-mer%2C%20class%C3%A9es%20par%20taux%20de%20r%C3%A9animation%20d%C3%A9croissant%20chez%20les%20personnes%20de%20plus%20de%2060%20ans.png)
 
 ## Other dataviz
 
