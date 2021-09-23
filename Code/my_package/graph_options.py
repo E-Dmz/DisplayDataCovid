@@ -86,7 +86,7 @@ def scale_graph_by_age_class_last(graph_options, df, entities,  *args, factor = 
         }
     return graph_options_auto(graph_options, dic)
 
-def scale_graph_by_age_class_max(graph_options, df, entities,  *args, factor = 1.1,):
+def scale_graph_by_age_class_max(graph_options, df, entities,  *args, factor = 1,):
     """returns a modified graph_options dictionary"""
     dic = {
         label:factor * (max_value(df, entities, age_classes, label) + 0.001) for (label, age_classes) in args

@@ -65,7 +65,7 @@ def format_graph(ax, x_axis = 'complete', y_labels = "to_the_left", rescale = 1,
     ###
 
     ax.set_xlim(dt.datetime(2020, 3, 1), 
-                    dt.datetime(2021, 9, 1))
+                    dt.datetime(2021, 10, 1))
     ax.axvline(dt.datetime(2021, 1, 1), 
                     ymin = 0, ymax = .95, 
                     c = 'black', linewidth = 0.5, linestyle = '--')
@@ -104,14 +104,14 @@ def format_graph(ax, x_axis = 'complete', y_labels = "to_the_left", rescale = 1,
     if x_axis == 'regular':
         ax.xaxis.set_tick_params(bottom = True, labelsize = 9)
         xloc = []
-        for i in range(9):
+        for i in range(10):
             xloc.append(dt.datetime(2020, 4  + 2*i, 1) if 2*i <= 8
                             else dt.datetime(2021, 2*i - 8, 1)
                        )
         labels = ['avril', 'juin', 
                     'août', 'oct.', 'déc.', 
                     'fév.', 'avril', 
-                      'juin','août']
+                      'juin','août', 'oct.']
         ax.xaxis.set_ticks(xloc)
         ax.xaxis.set_ticklabels(labels, rotation=45, ha="right", rotation_mode="anchor")
 
@@ -119,13 +119,13 @@ def format_graph(ax, x_axis = 'complete', y_labels = "to_the_left", rescale = 1,
         ax.tick_params(axis='x', bottom = True,
                 labelsize = 9)
         xloc = []
-        for i in range(19):
+        for i in range(20):
             xloc.append(dt.datetime(2020, 3 + i , 1) if i <= 9 
                         else dt.datetime(2021, i - 9, 1))
         labels = ['mars','avril', 'mai', 'juin', 'juil.', 
                  'août', 'sept.', 'oct.', 'nov.', 'déc.', 
                      'janv.', 'fév.', 'mars', 'avril', 
-                      'mai', 'juin', 'juil.', 'août', 'sept.']
+                      'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.',]
         ax.set_xticks(xloc)
         ax.set_xticklabels(labels)
         plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor") 
@@ -179,16 +179,17 @@ def simple_figure(d, entity, column_to_plot, autoscale = False, graph_options = 
     ax.set_title(f"{entity}", 
                     fontsize = 18, fontweight = 'semibold',
                     c = 'royalblue', family = 'sans', va = 'center', ha = 'center',)
-    ax.legend(bbox_to_anchor=[0, 1], loc='lower left', frameon=True,
+    ax.legend(bbox_to_anchor=[0, 1], loc='upper left', frameon=True, framealpha=.5, 
               labelspacing=0.5, handlelength=2, handletextpad=0.5, fontsize = 11,     
-              title = graph_options[column_to_plot]['title'], title_fontsize = 10,
+              title = graph_options[column_to_plot]['title'], title_fontsize = 12,
               )
     plt.setp(ax.get_legend().get_title(), multialignment='center')
 
-    plt.suptitle(ha = 'right', va = 'top', fontsize = 10, 
-                        x = .9, y = 1, 
-                        t = '\n'.join([f"{int(last_value(d, entity, age_class, column_to_plot) * population_by_entity_and_age_class_30_60[entity][age_class] / 100000):d} personnes {age_class}" for age_class in ['0-29', '30-59', '60+']]))
-    
+    t = plt.suptitle(ha = 'right', va = 'top', fontsize = 12, 
+                        x = .9, y = .85, 
+                        t = '\n'.join([f"{int(last_value(d, entity, age_class, column_to_plot) * population_by_entity_and_age_class_30_60[entity][age_class] / 100000):d} personnes {age_class}" for age_class in ['60+', '30-59', '0-29']]))
+    t.set_bbox(dict(alpha = 0.5, color = 'white'))
+
     dir_PNG = f'{output_dir}Type0/'
     fig_id = f'{entity}-{column_to_plot}'
     save_output(fig, dir_PNG, fig_id)
